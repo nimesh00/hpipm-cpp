@@ -32,12 +32,21 @@ add_library(
   src/ocp_qp_ipm_solver_statistics.cpp
   src/ocp_qp_ipm_solver.cpp
 )
-target_link_libraries(
-  ${PROJECT_NAME} 
-  PUBLIC
-  ${blasfeo_DIR}/../lib/libblasfeo.so
-  ${hpipm_DIR}/../lib/libhpipm.so
-)
+if (APPLE)
+    target_link_libraries(
+      ${PROJECT_NAME} 
+      PUBLIC
+      ${blasfeo_DIR}/../lib/libblasfeo.dylib
+      ${hpipm_DIR}/../lib/libhpipm.dylib
+    )
+else()
+    target_link_libraries(
+      ${PROJECT_NAME} 
+      PUBLIC
+      ${blasfeo_DIR}/../lib/libblasfeo.so
+      ${hpipm_DIR}/../lib/libhpipm.so
+    )
+endif()
 target_include_directories(
   ${PROJECT_NAME} 
   PUBLIC

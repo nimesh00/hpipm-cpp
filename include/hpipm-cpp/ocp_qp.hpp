@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Eigen/Core"
+#include "eigen3/Eigen/Core"
 
 
 namespace hpipm {

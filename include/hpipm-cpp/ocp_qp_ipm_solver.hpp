@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 
-#include "Eigen/Core"
+#include "eigen3/Eigen/Core"
 
 #include "hpipm-cpp/ocp_qp.hpp"
 #include "hpipm-cpp/ocp_qp_dim.hpp"

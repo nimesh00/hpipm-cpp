@@ -5,7 +5,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "Eigen/Core"
+#include "eigen3/Eigen/Core"
 
 extern "C" {
 #include "hpipm_d_ocp_qp_ipm.h"

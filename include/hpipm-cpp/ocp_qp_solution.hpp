@@ -1,7 +1,7 @@
 #ifndef HPIPM_CPP_OCP_QP_SOLUTION_HPP_
 #define HPIPM_CPP_OCP_QP_SOLUTION_HPP_
 
-#include "Eigen/Core"
+#include "eigen3/Eigen/Core"
 
 namespace hpipm {
 

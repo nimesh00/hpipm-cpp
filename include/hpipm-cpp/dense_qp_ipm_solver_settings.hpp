@@ -1,19 +1,9 @@
 #ifndef HPIPM_CPP_DENSE_QP_IPM_SOLVER_SETTINGS_HPP_
 #define HPIPM_CPP_DENSE_QP_IPM_SOLVER_SETTINGS_HPP_
 
+#include "common.hpp"
+
 namespace hpipm {
-
-// ///
-// /// @class HpipmMode
-// /// @brief Solver mode.
-// ///
-// enum class HpipmMode {
-//   SpeedAbs,
-//   Speed,
-//   Balance,
-//   Robust
-// };
-
 ///
 /// @class DenseQpIpmSolverSettings
 /// @brief Ipm solver settings for dense QP.

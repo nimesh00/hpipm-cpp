@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 
+#include "common.hpp"
 #include "eigen3/Eigen/Core"
 #include "hpipm-cpp/dense_qp.hpp"
 #include "hpipm-cpp/dense_qp_dim.hpp"
@@ -13,18 +14,6 @@
 #include "hpipm-cpp/dense_qp_solution.hpp"
 
 namespace hpipm {
-
-// ///
-// /// @class HpipmStatus
-// /// @brief Solver status.
-// ///
-// enum class HpipmStatus {
-//   Success = 0,
-//   MaxIterReached = 1,
-//   MinStepLengthReached = 2,
-//   NaNDetected = 3,
-//   UnknownFailure = 4,
-// };
 
 std::string to_string(const HpipmStatus& hpipm_status);
 

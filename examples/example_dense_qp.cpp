@@ -1,19 +1,18 @@
 #include <iostream>
+#include <limits>
 
 #include "Eigen/Core"
 #include "hpipm-cpp/hpipm-cpp.hpp"
 
-int main() {
+void runQpTest(const std::string& test_name, const Eigen::VectorXd& lb_mask,
+               const Eigen::VectorXd& ub_mask, const Eigen::VectorXd& lg_mask,
+               const Eigen::VectorXd& ug_mask,
+               bool use_infinite_bounds = false) {
     // Size of the problem
     const int nv = 4;  // number of variables
     const int ne = 1;  // number of equality constraints
     const int nb = 4;  // number of box constraints
     const int ng = 2;  // number of general constraints
-
-    // Problem data (portfolio optimization example)
-    // Objective: min 0.5 * v^T * H * v + g^T * v
-    // Where H represents risk (covariance matrix) and g represents negative
-    // expected returns
 
     // Risk matrix (positive definite)
     Eigen::MatrixXd H(nv, nv);
@@ -26,30 +25,36 @@ int main() {
 
     // Equality constraint: A * v = b (sum of allocations = 1)
     Eigen::MatrixXd A(ne, nv);
-    A << 1.0, 1.0, 1.0, 1.0;  // sum of allocations
-
+    A << 1.0, 1.0, 1.0, 1.0;
     Eigen::VectorXd b(ne);
-    b << 1.0;  // total allocation = 1 (100%)
+    b << 1.0;
 
-    // Box constraints: lb <= v <= ub (bounds on each asset allocation)
-    std::vector<int> idxb{0, 1, 2, 3};  // indices of box-constrained variables
-
+    // Box constraints: lb <= v <= ub
+    std::vector<int> idxb{0, 1, 2, 3};
     Eigen::VectorXd lb(nb);
-    lb << 0.0, 0.0, 0.0, 0.0;  // non-negative allocations
-
     Eigen::VectorXd ub(nb);
-    ub << 0.5, 0.5, 0.5, 0.5;  // max 50% in any single asset
+    if (use_infinite_bounds) {
+        lb << 0.0, -std::numeric_limits<double>::infinity(), 0.0,
+            -std::numeric_limits<double>::infinity();
+        ub << 0.5, std::numeric_limits<double>::infinity(), 0.5,
+            std::numeric_limits<double>::infinity();
+    } else {
+        lb << 0.0, 0.0, 0.0, 0.0;
+        ub << 0.5, 0.5, 0.5, 0.5;
+    }
 
     // General constraints: lg <= C * v <= ug
     Eigen::MatrixXd C(ng, nv);
-    C << 1.0, 0.0, 1.0, 0.0,  // sum of assets 0 and 2
-        0.0, 1.0, 0.0, 1.0;   // sum of assets 1 and 3
-
+    C << 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0;
     Eigen::VectorXd lg(ng);
-    lg << 0.3, 0.3;  // min 30% in each group
-
     Eigen::VectorXd ug(ng);
-    ug << 0.7, 0.7;  // max 70% in each group
+    if (use_infinite_bounds) {
+        lg << 0.3, -std::numeric_limits<double>::infinity();
+        ug << 0.7, std::numeric_limits<double>::infinity();
+    } else {
+        lg << 0.3, 0.3;
+        ug << 0.7, 0.7;
+    }
 
     // Set up the DenseQp struct
     hpipm::DenseQp qp;
@@ -64,7 +69,13 @@ int main() {
     qp.lg = lg;
     qp.ug = ug;
 
-    // Setup solver settings
+    // Assign masks
+    qp.lb_mask = lb_mask;
+    qp.ub_mask = ub_mask;
+    qp.lg_mask = lg_mask;
+    qp.ug_mask = ug_mask;
+
+    // Solver settings
     hpipm::DenseQpIpmSolverSettings solver_settings;
     solver_settings.mode = hpipm::HpipmMode::Balance;
     solver_settings.iter_max = 30;
@@ -81,37 +92,75 @@ int main() {
     solver_settings.compute_obj = 1;
     solver_settings.split_step = 1;
 
-    // Create solution object
-    hpipm::DenseQpSolution solution;
-
-    // Create and initialize solver
-    hpipm::DenseQpIpmSolver solver(qp, solver_settings);
-
     // Solve the QP
+    hpipm::DenseQpSolution solution;
+    hpipm::DenseQpIpmSolver solver(qp, solver_settings);
     const auto res = solver.solve(qp, solution);
-    std::cout << "QP result: " << res << std::endl;
 
-    // Print solution
-    std::cout << "Dense QP solution:" << std::endl;
-    std::cout << "Optimal allocation: " << solution.v.transpose() << std::endl;
-    std::cout << "Objective value: " << solution.obj_value << std::endl;
+    // Print results
+    std::cout << "\n=== " << test_name << " ===\n";
+    std::cout << "QP result: " << res << "\n";
+    if (res == hpipm::HpipmStatus::Success) {
+        std::cout << "Optimal allocation: " << solution.v.transpose() << "\n";
+        std::cout << "Objective value: " << solution.obj_value << "\n";
+    } else {
+        std::cout << "Solver failed\n";
+    }
+}
 
-    // Print Lagrange multipliers
-    std::cout << "Dual solution (Lagrange multipliers):" << std::endl;
-    std::cout << "Equality constraints (pi): " << solution.pi.transpose()
-              << std::endl;
-    std::cout << "Lower box constraints: " << solution.lam_lb.transpose()
-              << std::endl;
-    std::cout << "Upper box constraints: " << solution.lam_ub.transpose()
-              << std::endl;
-    std::cout << "Lower general constraints: " << solution.lam_lg.transpose()
-              << std::endl;
-    std::cout << "Upper general constraints: " << solution.lam_ug.transpose()
-              << std::endl;
+int main() {
+    const int nb = 4;  // number of box constraints
+    const int ng = 2;  // number of general constraints
 
-    // Print solver statistics
-    const auto& stat = solver.getSolverStatistics();
-    std::cout << stat << std::endl;
+    // Test Case 1: All constraints active (original problem)
+    Eigen::VectorXd lb_mask_all(nb);
+    lb_mask_all.setOnes();
+    Eigen::VectorXd ub_mask_all(nb);
+    ub_mask_all.setOnes();
+    Eigen::VectorXd lg_mask_all(ng);
+    lg_mask_all.setOnes();
+    Eigen::VectorXd ug_mask_all(ng);
+    ug_mask_all.setOnes();
+    runQpTest("All Constraints Active", lb_mask_all, ub_mask_all, lg_mask_all,
+              ug_mask_all, false);
+
+    // Test Case 2: No box upper bounds
+    Eigen::VectorXd ub_mask_none(nb);
+    ub_mask_none.setZero();
+    runQpTest("No Upper Box Constraints", lb_mask_all, ub_mask_none,
+              lg_mask_all, ug_mask_all, true);
+
+    // Test Case 3: No general upper bounds
+    Eigen::VectorXd ug_mask_none(ng);
+    ug_mask_none.setZero();
+    runQpTest("No Upper General Constraints", lb_mask_all, ub_mask_all,
+              lg_mask_all, ug_mask_none, true);
+
+    // Test Case 4: No box lower bounds
+    Eigen::VectorXd lb_mask_none(nb);
+    lb_mask_none.setZero();
+    runQpTest("No Lower Box Constraints", lb_mask_none, ub_mask_all,
+              lg_mask_all, ug_mask_all, true);
+
+    // Test Case 5: No general lower bounds
+    Eigen::VectorXd lg_mask_none(ng);
+    lg_mask_none.setZero();
+    runQpTest("No Lower General Constraints", lb_mask_all, ub_mask_all,
+              lg_mask_none, ug_mask_all, true);
+
+    // Test Case 6: Mixed constraints (some active, some inactive)
+    Eigen::VectorXd lb_mask_mixed(nb);
+    lb_mask_mixed << 1.0, 0.0, 1.0,
+        0.0;  // Active for v0, v2; inactive for v1, v3
+    Eigen::VectorXd ub_mask_mixed(nb);
+    ub_mask_mixed << 0.0, 1.0, 0.0,
+        1.0;  // Inactive for v0, v2; active for v1, v3
+    Eigen::VectorXd lg_mask_mixed(ng);
+    lg_mask_mixed << 1.0, 0.0;  // Active for first group, inactive for second
+    Eigen::VectorXd ug_mask_mixed(ng);
+    ug_mask_mixed << 0.0, 1.0;  // Inactive for first group, active for second
+    runQpTest("Mixed Constraints", lb_mask_mixed, ub_mask_mixed, lg_mask_mixed,
+              ug_mask_mixed, true);
 
     return 0;
 }

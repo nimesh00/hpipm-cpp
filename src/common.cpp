@@ -1,4 +1,4 @@
-#include "common.hpp"
+#include "hpipm-cpp/common.hpp"
 
 namespace hpipm {
 std::string to_string(const HpipmStatus& hpipm_status) {

@@ -27,10 +27,19 @@ add_library(
   src/detail/d_ocp_qp_sol_wrapper.cpp
   src/detail/d_ocp_qp_ipm_arg_wrapper.cpp
   src/detail/d_ocp_qp_ipm_ws_wrapper.cpp
+  src/detail/d_dense_qp_dim_wrapper.cpp
+  src/detail/d_dense_qp_wrapper.cpp
+  src/detail/d_dense_qp_sol_wrapper.cpp
+  src/detail/d_dense_qp_ipm_arg_wrapper.cpp
+  src/detail/d_dense_qp_ipm_ws_wrapper.cpp
   src/ocp_qp_dim.cpp
   src/ocp_qp_ipm_solver_settings.cpp
   src/ocp_qp_ipm_solver_statistics.cpp
   src/ocp_qp_ipm_solver.cpp
+  src/dense_qp_dim.cpp
+  src/dense_qp_ipm_solver_settings.cpp
+  src/dense_qp_ipm_solver_statistics.cpp
+  src/dense_qp_ipm_solver.cpp
 )
 if (APPLE)
     target_link_libraries(

@@ -40,6 +40,7 @@ add_library(
   src/dense_qp_ipm_solver_settings.cpp
   src/dense_qp_ipm_solver_statistics.cpp
   src/dense_qp_ipm_solver.cpp
+  src/common.cpp
 )
 if (APPLE)
     target_link_libraries(

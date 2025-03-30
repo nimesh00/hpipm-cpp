@@ -102,8 +102,8 @@ void DenseQpIpmSolver::setSolverSettings(
                                      dense_qp_ipm_arg_ptr);
     d_dense_qp_ipm_arg_set_cond_pred_corr(&solver_settings_.cond_pred_corr,
                                           dense_qp_ipm_arg_ptr);
-    int scale = solver_settings_.scale;
-    d_dense_qp_ipm_arg_set("scale", &scale, dense_qp_ipm_arg_ptr);
+    // int scale = solver_settings_.scale;
+    // d_dense_qp_ipm_arg_set("scale", &scale, dense_qp_ipm_arg_ptr);
     d_dense_qp_ipm_arg_set_kkt_fact_alg(&solver_settings_.kkt_fact_alg,
                                         dense_qp_ipm_arg_ptr);
     d_dense_qp_ipm_arg_set_remove_lin_dep_eq(

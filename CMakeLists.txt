@@ -99,13 +99,16 @@ if (BUILD_TESTS)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
 endif() # end if (BUILD_TESTS)
 
+add_executable(example_dense_qp examples/example_dense_qp.cpp)
+target_link_libraries(example_dense_qp hpipm-cpp::hpipm-cpp)
+
 #############
 ## Install ##
 #############
 include(GNUInstallDirs)
 # Install lib files
 install(
-  TARGETS ${PROJECT_NAME}  
+  TARGETS ${PROJECT_NAME}  example_dense_qp
   EXPORT ${PROJECT_NAME}-config
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

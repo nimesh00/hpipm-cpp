@@ -16,10 +16,6 @@
 
 namespace hpipm {
 
-std::string to_string(const HpipmStatus& hpipm_status);
-
-std::ostream& operator<<(std::ostream& os, const HpipmStatus& hpipm_status);
-
 ///
 /// @class OcpQpIpmSolver
 /// @brief Ipm solver.

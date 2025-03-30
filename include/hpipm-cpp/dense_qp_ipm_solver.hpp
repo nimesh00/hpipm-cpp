@@ -14,11 +14,6 @@
 #include "hpipm-cpp/dense_qp_solution.hpp"
 
 namespace hpipm {
-
-std::string to_string(const HpipmStatus& hpipm_status);
-
-std::ostream& operator<<(std::ostream& os, const HpipmStatus& hpipm_status);
-
 ///
 /// @class DenseQpIpmSolver
 /// @brief Ipm solver for dense QP problems.
